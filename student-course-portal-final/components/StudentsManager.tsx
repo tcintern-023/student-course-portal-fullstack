@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import StudentCard from "@/components/StudentCard";
 import StudentForm from "@/components/StudentForm";
+import { useAuth } from "@/components/AuthProvider";
 import {
   getStudents,
   getCourses,
@@ -21,6 +23,9 @@ function StudentCardSkeleton() {
 }
 
 export default function StudentsManager() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [students, setStudents] = useState<Student[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
@@ -129,16 +134,22 @@ export default function StudentsManager() {
   return (
     <div>
       <div className="mx-auto mt-8 flex max-w-xl flex-col items-center gap-4">
-        <button
-          type="button"
-          onClick={() => {
-            setShowAddForm((prev) => !prev);
-            setEditingStudent(null);
-          }}
-          className="rounded-full bg-slate-950 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600"
-        >
-          {showAddForm ? "Close form" : "+ Add a student"}
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddForm((prev) => !prev);
+              setEditingStudent(null);
+            }}
+            className="rounded-full bg-slate-950 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600"
+          >
+            {showAddForm ? "Close form" : "+ Add a student"}
+          </button>
+        ) : (
+          <p className="text-sm text-slate-500">
+            <Link href="/login" className="font-bold text-indigo-600 hover:text-indigo-700">Log in</Link> to add students and manage enrollments.
+          </p>
+        )}
       </div>
 
       {showAddForm && (
@@ -192,13 +203,13 @@ export default function StudentsManager() {
                 student={student}
                 enrollments={enrollments.filter((e) => e.student_id === student.id)}
                 availableCourses={courses}
-                onEdit={(s) => {
+                onEdit={user ? (s) => {
                   setEditingStudent(s);
                   setShowAddForm(false);
-                }}
-                onDelete={handleDelete}
-                onEnroll={handleEnroll}
-                onUnenroll={handleUnenroll}
+                } : undefined}
+                onDelete={isAdmin ? handleDelete : undefined}
+                onEnroll={user ? handleEnroll : undefined}
+                onUnenroll={user ? handleUnenroll : undefined}
                 deleting={deletingId === student.id}
                 unenrollingId={unenrollingId}
               />

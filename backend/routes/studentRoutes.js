@@ -11,11 +11,12 @@ const {
 
 const { validateCreateStudent, validateUpdateStudent } = require("../middleware/validateStudent");
 const { validateIdParam } = require("../middleware/validateId");
+const { authenticate, authorize } = require("../middleware/auth");
 
 router.get("/", getAllStudents);
 router.get("/:id", validateIdParam, getStudentById);
-router.post("/", validateCreateStudent, createStudent);
-router.put("/:id", validateIdParam, validateUpdateStudent, updateStudent);
-router.delete("/:id", validateIdParam, deleteStudent);
+router.post("/", authenticate, validateCreateStudent, createStudent);
+router.put("/:id", authenticate, validateIdParam, validateUpdateStudent, updateStudent);
+router.delete("/:id", authenticate, authorize("admin"), validateIdParam, deleteStudent);
 
 module.exports = router;

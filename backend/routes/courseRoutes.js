@@ -11,11 +11,12 @@ const {
 
 const { validateCreateCourse, validateUpdateCourse } = require("../middleware/validateCourse");
 const { validateIdParam } = require("../middleware/validateId");
+const { authenticate, authorize } = require("../middleware/auth");
 
 router.get("/", getAllCourses);
 router.get("/:id", validateIdParam, getCourseById);
-router.post("/", validateCreateCourse, createCourse);
-router.put("/:id", validateIdParam, validateUpdateCourse, updateCourse);
-router.delete("/:id", validateIdParam, deleteCourse);
+router.post("/", authenticate, validateCreateCourse, createCourse);
+router.put("/:id", authenticate, validateIdParam, validateUpdateCourse, updateCourse);
+router.delete("/:id", authenticate, authorize("admin"), validateIdParam, deleteCourse);
 
 module.exports = router;

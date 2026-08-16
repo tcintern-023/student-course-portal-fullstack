@@ -1,6 +1,16 @@
 -- Student Course Portal — PostgreSQL Schema
 -- Run via: npm run migrate  (executes this file against DATABASE_URL)
 
+-- ── Users (authentication) ──────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+  id            SERIAL PRIMARY KEY,
+  name          VARCHAR(255) NOT NULL,
+  email         VARCHAR(255) UNIQUE NOT NULL,
+  password_hash TEXT         NOT NULL,
+  role          VARCHAR(20)  NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'admin')),
+  created_at    TIMESTAMP    NOT NULL DEFAULT now()
+);
+
 -- ── Instructors ──────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS instructors (
   id         SERIAL PRIMARY KEY,

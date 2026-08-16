@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthProvider";
 
 const links = [
   { href: "/", label: "Home" },
@@ -13,6 +15,14 @@ const links = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/75 backdrop-blur-xl">
@@ -37,10 +47,24 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Link href="/contact" className="text-sm font-semibold text-slate-600 hover:text-indigo-600">Have a question?</Link>
-          <Link href="/courses" className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5 hover:bg-indigo-600">
-            Start learning <span className="ml-1">→</span>
-          </Link>
+          {loading ? null : user ? (
+            <>
+              <span className="flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">
+                {user.name}
+                <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-indigo-700">{user.role}</span>
+              </span>
+              <button onClick={handleLogout} className="rounded-full border border-slate-300 px-5 py-2.5 text-sm font-bold text-slate-700 transition hover:border-rose-300 hover:text-rose-600">
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-indigo-600">Log in</Link>
+              <Link href="/signup" className="rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5 hover:bg-indigo-600">
+                Sign up <span className="ml-1">→</span>
+              </Link>
+            </>
+          )}
         </div>
 
         <button onClick={() => setOpen((v) => !v)} className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 shadow-sm md:hidden" aria-label="Toggle menu" aria-expanded={open}>
@@ -58,7 +82,20 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/courses" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-bold text-white">Start learning →</Link>
+            {loading ? null : user ? (
+              <>
+                <div className="mt-2 flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700">
+                  {user.name}
+                  <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-indigo-700">{user.role}</span>
+                </div>
+                <button onClick={handleLogout} className="rounded-xl border border-slate-300 px-4 py-3 text-center text-sm font-bold text-slate-700">Log out</button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-100">Log in</Link>
+                <Link href="/signup" onClick={() => setOpen(false)} className="mt-2 rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-bold text-white">Sign up →</Link>
+              </>
+            )}
           </div>
         </div>
       )}

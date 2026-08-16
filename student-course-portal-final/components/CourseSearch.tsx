@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import CourseCard from "@/components/CourseCard";
 import CourseForm from "@/components/CourseForm";
+import { useAuth } from "@/components/AuthProvider";
 import { getCourses, deleteCourse, ApiRequestError, type Course } from "@/lib/api";
 
 const PAGE_SIZE = 6;
@@ -12,6 +14,9 @@ function CourseCardSkeleton() {
 }
 
 export default function CourseSearch() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [courses, setCourses] = useState<Course[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -143,16 +148,22 @@ export default function CourseSearch() {
           />
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setShowAddForm((prev) => !prev);
-            setEditingCourse(null);
-          }}
-          className="rounded-full bg-slate-950 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600"
-        >
-          {showAddForm ? "Close form" : "+ Add a course"}
-        </button>
+        {user ? (
+          <button
+            type="button"
+            onClick={() => {
+              setShowAddForm((prev) => !prev);
+              setEditingCourse(null);
+            }}
+            className="rounded-full bg-slate-950 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-600"
+          >
+            {showAddForm ? "Close form" : "+ Add a course"}
+          </button>
+        ) : (
+          <p className="text-sm text-slate-500">
+            <Link href="/login" className="font-bold text-indigo-600 hover:text-indigo-700">Log in</Link> to add courses.
+          </p>
+        )}
       </div>
 
       {showAddForm && (
@@ -211,11 +222,11 @@ export default function CourseSearch() {
                 <CourseCard
                   key={course.id}
                   course={course}
-                  onEdit={(c) => {
+                  onEdit={user ? (c) => {
                     setEditingCourse(c);
                     setShowAddForm(false);
-                  }}
-                  onDelete={handleDelete}
+                  } : undefined}
+                  onDelete={isAdmin ? handleDelete : undefined}
                   deleting={deletingId === course.id}
                 />
               ))}

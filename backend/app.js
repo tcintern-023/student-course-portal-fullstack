@@ -5,6 +5,7 @@ const courseRoutes = require("./routes/courseRoutes");
 const instructorRoutes = require("./routes/instructorRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
+const authRoutes = require("./routes/authRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
 });
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/instructors", instructorRoutes);
 app.use("/api/students", studentRoutes);

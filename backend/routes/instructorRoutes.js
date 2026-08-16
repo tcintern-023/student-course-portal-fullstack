@@ -11,11 +11,12 @@ const {
 
 const { validateCreateInstructor, validateUpdateInstructor } = require("../middleware/validateInstructor");
 const { validateIdParam } = require("../middleware/validateId");
+const { authenticate, authorize } = require("../middleware/auth");
 
 router.get("/", getAllInstructors);
 router.get("/:id", validateIdParam, getInstructorById);
-router.post("/", validateCreateInstructor, createInstructor);
-router.put("/:id", validateIdParam, validateUpdateInstructor, updateInstructor);
-router.delete("/:id", validateIdParam, deleteInstructor);
+router.post("/", authenticate, validateCreateInstructor, createInstructor);
+router.put("/:id", authenticate, validateIdParam, validateUpdateInstructor, updateInstructor);
+router.delete("/:id", authenticate, authorize("admin"), validateIdParam, deleteInstructor);
 
 module.exports = router;

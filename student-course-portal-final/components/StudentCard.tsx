@@ -8,12 +8,16 @@ interface StudentCardProps {
   student: Student;
   enrollments: Enrollment[];
   availableCourses: Course[];
-  onEdit: (student: Student) => void;
-  onDelete: (student: Student) => void;
-  onEnroll: (studentId: number, courseId: number) => Promise<void>;
-  onUnenroll: (enrollment: Enrollment) => void;
-  deleting: boolean;
-  unenrollingId: number | null;
+  /** Omit to hide the Edit button (e.g. when logged out). */
+  onEdit?: (student: Student) => void;
+  /** Omit to hide the Delete button (e.g. when not an admin). */
+  onDelete?: (student: Student) => void;
+  /** Omit to hide the enroll dropdown (e.g. when logged out). */
+  onEnroll?: (studentId: number, courseId: number) => Promise<void>;
+  /** Omit to hide Unenroll buttons (e.g. when logged out). */
+  onUnenroll?: (enrollment: Enrollment) => void;
+  deleting?: boolean;
+  unenrollingId?: number | null;
 }
 
 export default function StudentCard({
@@ -35,7 +39,7 @@ export default function StudentCard({
   const enrollableCourses = availableCourses.filter((c) => !enrolledCourseIds.has(c.id));
 
   const handleEnroll = async () => {
-    if (!selectedCourseId) return;
+    if (!selectedCourseId || !onEnroll) return;
     setEnrollError(null);
     setEnrolling(true);
     try {
@@ -48,6 +52,8 @@ export default function StudentCard({
     }
   };
 
+  const showManageActions = Boolean(onEdit || onDelete);
+
   return (
     <article className="card-lift flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -55,23 +61,29 @@ export default function StudentCard({
           <h3 className="truncate text-lg font-black text-slate-950">{student.name}</h3>
           <p className="truncate text-sm text-slate-500">{student.email}</p>
         </div>
-        <div className="flex shrink-0 gap-2">
-          <button
-            type="button"
-            onClick={() => onEdit(student)}
-            className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600"
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(student)}
-            disabled={deleting}
-            className="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {deleting ? "…" : "Delete"}
-          </button>
-        </div>
+        {showManageActions && (
+          <div className="flex shrink-0 gap-2">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={() => onEdit(student)}
+                className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600"
+              >
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(student)}
+                disabled={deleting}
+                className="rounded-full border border-rose-200 px-3 py-1.5 text-xs font-bold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deleting ? "…" : "Delete"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-5 border-t border-slate-100 pt-4">
@@ -88,20 +100,22 @@ export default function StudentCard({
                 <Link href={`/courses/${e.course_slug}`} className="truncate text-sm font-semibold text-slate-700 hover:text-indigo-600">
                   {e.course_title}
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => onUnenroll(e)}
-                  disabled={unenrollingId === e.id}
-                  className="shrink-0 text-xs font-bold text-rose-600 hover:text-rose-700 disabled:opacity-50"
-                >
-                  {unenrollingId === e.id ? "…" : "Unenroll"}
-                </button>
+                {onUnenroll && (
+                  <button
+                    type="button"
+                    onClick={() => onUnenroll(e)}
+                    disabled={unenrollingId === e.id}
+                    className="shrink-0 text-xs font-bold text-rose-600 hover:text-rose-700 disabled:opacity-50"
+                  >
+                    {unenrollingId === e.id ? "…" : "Unenroll"}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
         )}
 
-        {enrollableCourses.length > 0 && (
+        {onEnroll && enrollableCourses.length > 0 && (
           <div className="mt-4 flex gap-2">
             <select
               value={selectedCourseId}

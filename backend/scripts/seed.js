@@ -1,4 +1,5 @@
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
 
 const instructors = [
@@ -6,6 +7,14 @@ const instructors = [
   { name: "Bilal Ahmed", email: "bilal.ahmed@studenthub.com", bio: "AI/ML engineer and cloud infrastructure specialist." },
   { name: "Sana Malik", email: "sana.malik@studenthub.com", bio: "Data scientist focused on practical, applied ML." },
   { name: "Hamza Tariq", email: "hamza.tariq@studenthub.com", bio: "Mobile engineer shipping React Native apps since 2018." },
+];
+
+// Plain-text here only for seeding convenience — hashed before insert below.
+// Change these credentials (or delete the users afterward) before sharing
+// a real deployment link.
+const testUsers = [
+  { name: "Admin User", email: "admin@studenthub.com", password: "admin123", role: "admin" },
+  { name: "Test Student", email: "student@studenthub.com", password: "student123", role: "student" },
 ];
 
 const courses = [
@@ -81,6 +90,17 @@ async function seed() {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+
+    console.log("Seeding test users...");
+    for (const user of testUsers) {
+      const passwordHash = await bcrypt.hash(user.password, 10);
+      await client.query(
+        `INSERT INTO users (name, email, password_hash, role)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (email) DO NOTHING`,
+        [user.name, user.email, passwordHash, user.role]
+      );
+    }
 
     console.log("Seeding instructors...");
     const emailToId = {};

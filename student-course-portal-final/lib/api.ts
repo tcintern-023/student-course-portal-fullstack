@@ -7,6 +7,8 @@
  * that shapes errors consistently, and one place components can trust.
  */
 
+import { getToken } from "./tokenStorage";
+
 export interface Course {
   id: number;
   slug: string;
@@ -115,11 +117,15 @@ interface ApiEnvelope {
 async function request(path: string, options: RequestInit = {}): Promise<ApiEnvelope> {
   let response: Response;
 
+  const token = getToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> | undefined),
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
   try {
-    response = await fetch(`${API_URL}${path}`, {
-      ...options,
-      headers: { "Content-Type": "application/json", ...options.headers },
-    });
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
   } catch {
     throw new ApiRequestError(
       0,
@@ -257,6 +263,34 @@ export async function createEnrollment(studentId: number, courseId: number): Pro
 /** DELETE /api/enrollments/:id */
 export async function deleteEnrollment(id: number): Promise<void> {
   await request(`/enrollments/${id}`, { method: "DELETE" });
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: "student" | "admin";
+  created_at: string;
+}
+
+/** POST /api/auth/register */
+export async function registerUser(input: { name: string; email: string; password: string }): Promise<{ user: User; token: string }> {
+  const res = await request("/auth/register", { method: "POST", body: JSON.stringify(input) });
+  return res.data as { user: User; token: string };
+}
+
+/** POST /api/auth/login */
+export async function loginUser(input: { email: string; password: string }): Promise<{ user: User; token: string }> {
+  const res = await request("/auth/login", { method: "POST", body: JSON.stringify(input) });
+  return res.data as { user: User; token: string };
+}
+
+/** GET /api/auth/me — validates the stored token and returns the current user. */
+export async function getCurrentUser(): Promise<User> {
+  const res = await request("/auth/me", { cache: "no-store" });
+  return res.data as User;
 }
 
 // ── Helpers ──────────────────────────────────────────────────
