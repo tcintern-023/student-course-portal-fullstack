@@ -1,0 +1,360 @@
+{
+  "info": {
+    "name": "Student Course Portal API",
+    "description": "Auth (register/login/JWT) + CRUD endpoints for Courses, Instructors, Students, and Enrollments \u2014 backed by PostgreSQL (Neon).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ali Raza\",\n  \"email\": \"ali.raza@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@studenthub.com\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get current user (me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses",
+      "item": [
+        {
+          "name": "Get all courses",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/courses"
+          }
+        },
+        {
+          "name": "Search + filter + paginate",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/courses?search=web&category=Web&level=Beginner&page=1&limit=6"
+          }
+        },
+        {
+          "name": "Get course by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/courses/1"
+          }
+        },
+        {
+          "name": "Create course",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/courses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"DevOps Foundations\",\n  \"category\": \"Cloud\",\n  \"level\": \"Beginner\",\n  \"duration\": \"5 weeks\",\n  \"description\": \"Intro to DevOps.\",\n  \"topics\": [\"CI/CD\", \"Docker\"],\n  \"instructorId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Update course",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/courses/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration\": \"9 weeks\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete course",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/courses/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Instructors",
+      "item": [
+        {
+          "name": "Get all instructors",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/instructors"
+          }
+        },
+        {
+          "name": "Get instructor by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/instructors/1"
+          }
+        },
+        {
+          "name": "Create instructor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/instructors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nida Farooq\",\n  \"email\": \"nida.farooq@studenthub.com\",\n  \"bio\": \"DevOps specialist.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update instructor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/instructors/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Updated bio.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete instructor",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/instructors/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "Get all students",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/students"
+          }
+        },
+        {
+          "name": "Get student by id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/students/1"
+          }
+        },
+        {
+          "name": "Create student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/students",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ali Raza\",\n  \"email\": \"ali.raza@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/students/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ali Raza Khan\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete student",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/students/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments (Bonus)",
+      "item": [
+        {
+          "name": "Get all enrollments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/enrollments"
+          }
+        },
+        {
+          "name": "Get enrollments by student",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/enrollments?studentId=1"
+          }
+        },
+        {
+          "name": "Get enrollments by course",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/enrollments?courseId=1"
+          }
+        },
+        {
+          "name": "Create enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/enrollments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": 1,\n  \"courseId\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete enrollment",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/enrollments/1",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
